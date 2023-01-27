@@ -5,7 +5,6 @@ class Stipendio
     private $mensile;
     private $tredicesima;
     private $quattordicesima;
-    private $annuale;
 
 
     public function __construct($mensile, $tredicesima, $quattordicesima)
@@ -36,8 +35,8 @@ class Stipendio
 
         /* ($this->tredicesima = 0 || $this->tredicesima = 1) ? $this->tredicesima = $tredicesima : NULL;  */
         $this->tredicesima = $tredicesima;
-        
-        
+
+
     }
     public function getQuattordicesima()
     {
@@ -49,10 +48,10 @@ class Stipendio
     }
     public function getStipendioAnnuale()
     {
-        return $this->annuale;
-    }
-    public function setStipendioAnnuale(){
-        $this->annuale = ( $this->getMensile() * ( 12 + ( $this->quattordicesima ) + ( $this->tredicesima ) ) );
+        $mensile = $this->getMensile();
+        return $mensile * 12
+            + ($this->getTredicesima() ? $mensile : 0)
+            + ($this->getQuattordicesima() ? $mensile : 0);
     }
     public function getHtml()
     {
@@ -144,7 +143,8 @@ class Persona
             . $this->getCodiceF();
     }
 }
-class Impiegato extends Persona {
+class Impiegato extends Persona
+{
     private $dataAssunzione;
     private Stipendio $stipendio;
     public function __construct($nome, $cognome, $codiceF, $luogoNascita, $dataNascita, $dataAssunzione, Stipendio $stipendio)
@@ -174,12 +174,16 @@ class Impiegato extends Persona {
 
         $this->stipendio = $stipendio;
     }
+    public function getStipendioAnnuale()
+    {
+        return $this->getStipendio()->getStipendioAnnuale();
+    }
     public function getHtml()
     {
 
-        return parent :: getHtml() . "<br>"
+        return parent::getHtml() . "<br>"
             . $this->getDataAssunzione() . "<br>"
-            . $this->getStipendio() -> setStipendioAnnuale();
+            . $this->getStipendio()->getHtml();
     }
 }
 class Boss extends Persona
@@ -216,16 +220,12 @@ class Boss extends Persona
     }
     public function getRedditoAnnuale()
     {
-        return $this->redditoAnnuale;
-    }
-    public function setRedditoAnnuale($dividendo)
-    {
-        $this->redditoAnnuale = ( $dividendo * 12 ) + ($this->bonus);
+        return $this->getDividendo() * 12 + $this->getBonus();
     }
     public function getHtml()
     {
 
-        return parent :: getHtml() . "<br>"
+        return parent::getHtml() . "<br>"
             . $this->getDividendo() . "<br>"
             . $this->getRedditoAnnuale();
     }
@@ -234,18 +234,15 @@ class Boss extends Persona
 
 
 
+
+
+/* $Boss1 = new Boss("Piero", "Rossi", "PRRS20301230P", "Foligno", "1939-01-01", 2000, 10000);  */
 $Impiegato1Stipendio = new Stipendio(2000, true, true);
-$Boss1 = new Boss("Piero", "Rossi", "PRRS20301230P", "Foligno", "1939-01-01", 2000, 10000);
 $Impiegato1 = new Impiegato("Aronne", "Piperno", "ARPI20301230P", "Roma", "1779-01-01", "1941-01-01", $Impiegato1Stipendio);
 
 echo "<h1>";
-
+echo $Impiegato1Stipendio->getHtml();
 echo "</h1>";
-
-
-
-
-
-
-
-
+echo "<h1>";
+echo $Impiegato1->getHtml();
+echo "</h1>";
